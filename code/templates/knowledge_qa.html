@@ -1,0 +1,260 @@
+{% extends "base.html" %}
+
+{% block title %}知识问答 · LiterNexus{% endblock %}
+{% block body_class %}knowledge-qa-page{% endblock %}
+{% block site_header %}{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/knowledge_qa.css', v=static_version) }}">
+{% endblock %}
+
+{% block content %}
+<section class="qa-workspace" aria-label="知识问答工作区">
+    <aside class="qa-sidebar">
+        <div class="qa-sidebar-brand">
+            <span class="qa-brand-icon"><i class="fas fa-comments" aria-hidden="true"></i></span>
+            <div>
+                <span>LiterNexus</span>
+                <strong>知识问答</strong>
+            </div>
+        </div>
+
+        <a class="qa-back-link" href="{{ url_for('index') }}">
+            <i class="fas fa-arrow-left" aria-hidden="true"></i>
+            返回文献工作台
+        </a>
+
+        <button type="button" class="qa-new-chat" id="qa-new-chat">
+            <i class="fas fa-plus" aria-hidden="true"></i>
+            新建问答
+        </button>
+
+        <section class="qa-history-panel" aria-labelledby="qa-history-title">
+            <h2 class="qa-sidebar-heading" id="qa-history-title">最近问答</h2>
+            <div class="qa-history-list" id="qa-history-list">
+                <button type="button" class="qa-history-item active">
+                    <i class="far fa-message" aria-hidden="true"></i>
+                    <span>新问答</span>
+                </button>
+            </div>
+        </section>
+
+        <div class="qa-sidebar-footer">
+            <i class="fas fa-shield-halved" aria-hidden="true"></i>
+            <span>回答将基于所选文献范围，并保留引用来源。</span>
+        </div>
+    </aside>
+
+    <section class="qa-chat-shell" aria-labelledby="qa-chat-title">
+        <header class="qa-chat-header">
+            <div>
+                <span class="qa-chat-eyebrow" id="qa-chat-eyebrow">Literature-grounded QA</span>
+                <h1 id="qa-chat-title">基于全库文献问答</h1>
+            </div>
+            <div class="qa-header-actions">
+                <span class="qa-model-status" id="qa-model-status" role="status" aria-live="polite" aria-atomic="true"><i class="fas fa-circle" aria-hidden="true"></i> 未配置模型</span>
+                <button type="button" class="qa-icon-button qa-theme-toggle" id="theme-toggle" title="切换到夜览模式" aria-label="切换到夜览模式" aria-pressed="false">
+                    <i class="fas fa-moon qa-theme-icon" aria-hidden="true"></i>
+                </button>
+                <button type="button" class="qa-icon-button" id="qa-open-settings" title="模型与检索配置" aria-label="模型与检索配置">
+                    <i class="fas fa-gear" aria-hidden="true"></i>
+                </button>
+                <button type="button" class="qa-icon-button" id="qa-clear-chat" title="清空当前对话" aria-label="清空当前对话">
+                    <i class="fas fa-rotate-left" aria-hidden="true"></i>
+                </button>
+            </div>
+        </header>
+
+        <div class="qa-chat-body" id="qa-chat-body">
+            <section class="qa-welcome" id="qa-welcome">
+                <div class="qa-welcome-mark" aria-hidden="true">
+                    <img src="{{ url_for('static', filename='img/liternexus-app-symbol.png') }}" alt="" width="64" height="64" fetchpriority="high" decoding="async">
+                </div>
+                <h2>从你的文献中寻找答案</h2>
+                <p>选择全库或一个文献主题库，然后围绕研究结论、材料体系、实验方法和技术路线进行提问。</p>
+                <div class="qa-suggestion-grid">
+                    <button type="button" class="qa-suggestion" data-question="总结当前文献范围内的主要研究方向">
+                        <i class="fas fa-compass" aria-hidden="true"></i>
+                        <span><strong>归纳研究方向</strong><small>总结主要主题与发展脉络</small></span>
+                    </button>
+                    <button type="button" class="qa-suggestion" data-question="比较不同材料体系的性能与适用场景">
+                        <i class="fas fa-scale-balanced" aria-hidden="true"></i>
+                        <span><strong>比较材料体系</strong><small>对比性能、方法与适用场景</small></span>
+                    </button>
+                    <button type="button" class="qa-suggestion" data-question="提取文献中常用的实验方法和关键参数">
+                        <i class="fas fa-flask" aria-hidden="true"></i>
+                        <span><strong>提取实验方法</strong><small>整理方法、参数与测试条件</small></span>
+                    </button>
+                    <button type="button" class="qa-suggestion" data-question="基于现有文献识别研究空白和潜在机会">
+                        <i class="fas fa-lightbulb" aria-hidden="true"></i>
+                        <span><strong>发现研究机会</strong><small>识别空白、矛盾与后续方向</small></span>
+                    </button>
+                </div>
+            </section>
+            <div class="qa-message-list" id="qa-message-list" aria-live="polite"></div>
+        </div>
+
+        <footer class="qa-composer-wrap">
+            <form class="qa-composer" id="qa-composer">
+                <textarea id="qa-question" name="question" rows="1" placeholder="向文献数据库提问…" aria-label="问题内容" autocomplete="off" enterkeyhint="send"></textarea>
+                <div class="qa-composer-bottom">
+                    <div class="qa-scope-picker" id="qa-scope-picker">
+                        <button type="button" class="qa-composer-context" id="qa-scope-trigger" aria-haspopup="menu" aria-expanded="false" aria-controls="qa-scope-menu">
+                            <i class="fas fa-database" aria-hidden="true"></i>
+                            <span>全库文献</span>
+                            <i class="fas fa-chevron-down qa-scope-chevron" aria-hidden="true"></i>
+                        </button>
+                        <div class="qa-scope-menu" id="qa-scope-menu" role="menu" aria-label="选择问答文献范围" hidden>
+                            <div class="qa-scope-menu-heading">知识范围</div>
+                            <button type="button" class="qa-source-option active" data-scope="library" role="menuitemradio" aria-checked="true">
+                                <span class="qa-source-option-icon"><i class="fas fa-database" aria-hidden="true"></i></span>
+                                <span class="qa-source-option-copy">
+                                    <strong>全库文献</strong>
+                                    <small id="qa-library-count" aria-live="polite">正在读取…</small>
+                                </span>
+                            </button>
+                            <div class="qa-source-subheading">
+                                <span><i class="fas fa-layer-group" aria-hidden="true"></i> 文献主题库</span>
+                                <em id="qa-collection-count">0</em>
+                            </div>
+                            <div class="qa-collection-list" id="qa-collection-list">
+                                <div class="qa-source-loading"><i class="fas fa-spinner fa-spin" aria-hidden="true"></i> 正在读取主题库…</div>
+                            </div>
+                        </div>
+                    </div>
+                    <button type="submit" class="qa-send-button" id="qa-send-button" aria-label="发送问题" title="发送问题">
+                        <i class="fas fa-arrow-up" aria-hidden="true"></i>
+                    </button>
+                </div>
+            </form>
+            <p id="qa-retrieval-hint">本地关键词检索 · 回答仅基于所选文献范围</p>
+        </footer>
+    </section>
+</section>
+
+<div class="qa-settings-backdrop" id="qa-settings-backdrop" hidden>
+    <section class="qa-settings-dialog" role="dialog" aria-modal="true" aria-labelledby="qa-settings-title" tabindex="-1">
+        <header>
+            <div>
+                <span>Cloud model</span>
+                <h2 id="qa-settings-title">模型与知识检索配置</h2>
+            </div>
+            <button type="button" class="qa-icon-button" id="qa-close-settings" aria-label="关闭配置"><i class="fas fa-xmark" aria-hidden="true"></i></button>
+        </header>
+        <form id="qa-settings-form">
+            <div class="qa-settings-section">
+                <h3>回答模型</h3>
+                <div class="qa-settings-grid">
+                    <label>接口类型
+                        <select name="provider" id="qa-provider">
+                            <option value="openai_compatible">OpenAI 兼容接口</option>
+                            <option value="ollama">本地 Ollama</option>
+                        </select>
+                    </label>
+                    <label>模型名称
+                        <input name="model" id="qa-model" placeholder="例如 gpt-4.1-mini" autocomplete="off" spellcheck="false" translate="no">
+                    </label>
+                    <label>回答详细度
+                        <select name="answer_depth" id="qa-answer-depth">
+                            <option value="detailed">详细</option>
+                            <option value="standard">标准</option>
+                            <option value="concise">简洁</option>
+                        </select>
+                    </label>
+                    <label>最大输出 Tokens
+                        <input type="number" name="max_tokens" id="qa-max-tokens" min="512" max="8000" step="100" value="3200">
+                    </label>
+                    <label class="qa-settings-wide">服务地址
+                        <input type="url" name="base_url" id="qa-base-url" placeholder="例如 https://api.openai.com/v1" autocomplete="url" spellcheck="false" translate="no">
+                    </label>
+                    <label class="qa-settings-wide">访问密钥
+                        <span class="qa-secret-input">
+                            <input type="password" name="api_key" id="qa-api-key" placeholder="已保存的密钥不会回显；留空表示保持不变" autocomplete="new-password">
+                            <button type="button" class="qa-secret-toggle" data-target="qa-api-key" aria-label="显示访问密钥" title="显示访问密钥"><i class="fas fa-eye" aria-hidden="true"></i></button>
+                        </span>
+                        <small class="qa-secret-status" id="qa-api-key-status"><i class="fas fa-lock" aria-hidden="true"></i> 尚未保存</small>
+                    </label>
+                </div>
+            </div>
+
+            <div class="qa-settings-section">
+                <div class="qa-settings-section-heading">
+                    <div><h3>检索方式</h3><p>基础检索无需额外配置；混合检索会结合向量语义相似度。</p></div>
+                    <select name="retrieval_mode" id="qa-retrieval-mode" aria-label="检索方式">
+                        <option value="lexical">本地关键词检索</option>
+                        <option value="hybrid">关键词 + 向量混合检索</option>
+                    </select>
+                </div>
+                <div class="qa-settings-grid" id="qa-embedding-fields">
+                    <label>Embedding 模型
+                        <input name="embedding_model" id="qa-embedding-model" placeholder="例如 text-embedding-3-small" autocomplete="off" spellcheck="false" translate="no">
+                    </label>
+                    <label>每次证据条数
+                        <input type="number" name="top_k" id="qa-top-k" min="4" max="20" value="10">
+                    </label>
+                    <label class="qa-settings-wide">Embedding 服务地址
+                        <input type="url" name="embedding_base_url" id="qa-embedding-base-url" placeholder="留空时使用回答模型服务地址" autocomplete="url" spellcheck="false" translate="no">
+                    </label>
+                    <label class="qa-settings-wide">Embedding 访问密钥
+                        <span class="qa-secret-input">
+                            <input type="password" name="embedding_api_key" id="qa-embedding-api-key" placeholder="留空时使用回答模型密钥；已保存的密钥不会回显" autocomplete="new-password">
+                            <button type="button" class="qa-secret-toggle" data-target="qa-embedding-api-key" aria-label="显示 Embedding 访问密钥" title="显示 Embedding 访问密钥"><i class="fas fa-eye" aria-hidden="true"></i></button>
+                        </span>
+                        <small class="qa-secret-status" id="qa-embedding-api-key-status"><i class="fas fa-lock" aria-hidden="true"></i> 尚未单独保存，将使用回答模型密钥</small>
+                    </label>
+                </div>
+                <div class="qa-index-status" id="qa-index-status" role="status" aria-live="polite" aria-atomic="true">尚未读取语义索引状态</div>
+            </div>
+
+            <div class="qa-settings-section">
+                <div class="qa-settings-section-heading">
+                    <div><h3>本地 Reranker 精排</h3><p>对混合检索候选再次评分，再将最相关证据交给回答模型。</p></div>
+                    <label class="qa-switch" for="qa-reranker-enabled">
+                        <input type="checkbox" id="qa-reranker-enabled" name="reranker_enabled">
+                        <span aria-hidden="true"></span>
+                        启用精排
+                    </label>
+                </div>
+                <div class="qa-settings-grid" id="qa-reranker-fields">
+                    <label class="qa-settings-wide">本地模型
+                        <input name="reranker_model" id="qa-reranker-model" value="BAAI/bge-reranker-v2-m3" autocomplete="off" spellcheck="false" translate="no">
+                    </label>
+                    <label>候选片段数
+                        <input type="number" name="reranker_candidate_k" id="qa-reranker-candidate-k" min="10" max="100" value="40">
+                    </label>
+                    <label>最终证据数
+                        <input type="number" name="reranker_final_k" aria-label="最终证据数镜像" value="10" id="qa-reranker-final-k" min="4" max="20">
+                    </label>
+                    <label>推理设备
+                        <select name="reranker_device" id="qa-reranker-device">
+                            <option value="auto">自动选择</option>
+                            <option value="mps">Apple MPS</option>
+                            <option value="cpu">CPU</option>
+                        </select>
+                    </label>
+                    <label>批量大小
+                        <input type="number" name="reranker_batch_size" id="qa-reranker-batch-size" min="1" max="16" value="4">
+                    </label>
+                    <label>最大输入长度
+                        <input type="number" name="reranker_max_length" id="qa-reranker-max-length" min="128" max="1024" step="128" value="512">
+                    </label>
+                </div>
+                <div class="qa-index-status qa-reranker-status" id="qa-reranker-status" role="status" aria-live="polite" aria-atomic="true">尚未读取本地精排模型状态</div>
+            </div>
+
+            <footer>
+                <button type="button" class="qa-secondary-button" id="qa-test-model"><i class="fas fa-plug" aria-hidden="true"></i> 测试连接</button>
+                <button type="button" class="qa-secondary-button" id="qa-build-index"><i class="fas fa-layer-group" aria-hidden="true"></i> 更新语义索引</button>
+                <button type="button" class="qa-secondary-button" id="qa-deploy-reranker"><i class="fas fa-download" aria-hidden="true"></i> 部署本地精排</button>
+                <button type="submit" class="qa-primary-button"><i class="fas fa-floppy-disk" aria-hidden="true"></i> 保存配置</button>
+            </footer>
+        </form>
+    </section>
+</div>
+
+<div class="qa-toast-stack" id="qa-toast-stack" role="status" aria-live="polite" aria-atomic="false"></div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/knowledge_qa.js', v=static_version) }}"></script>
+{% endblock %}

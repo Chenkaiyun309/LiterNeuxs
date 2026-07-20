@@ -1,0 +1,10 @@
+pandas
+requests
+flask
+flask-wtf
+wtforms
+marker-pdf
+pymupdf
+torch
+transformers
+huggingface-hub

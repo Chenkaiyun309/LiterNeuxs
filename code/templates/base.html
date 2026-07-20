@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="day">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" id="theme-color-meta" content="#eef6fc">
+    <title>{% block title %}LiterNexus{% endblock %}</title>
+    <script>
+        (function() {
+            var theme = localStorage.getItem('liternexus-theme') || localStorage.getItem('scholarflow-theme') || 'day';
+            var normalizedTheme = theme === 'night' ? 'night' : 'day';
+            document.documentElement.setAttribute('data-theme', normalizedTheme);
+            document.getElementById('theme-color-meta')?.setAttribute('content', normalizedTheme === 'night' ? '#091624' : '#eef6fc');
+        })();
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
+    <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css', v=static_version) }}">
+    {% block extra_head %}{% endblock %}
+    <script>
+        window.MathJax = {
+            tex: {
+                inlineMath: [['\\(', '\\)'], ['$', '$']],
+                displayMath: [['\\[', '\\]'], ['$$', '$$']],
+                processEscapes: true,
+                macros: {
+                    bm: ['\\mathbf{' + '#1}', 1],
+                    boldsymbol: ['\\mathbf{' + '#1}', 1]
+                }
+            },
+            options: {
+                skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+            },
+            startup: {
+                typeset: false
+            }
+        };
+    </script>
+    <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+</head>
+<body class="{% block body_class %}{% endblock %}">
+    <a class="skip-link" href="#main-content">跳到主要内容</a>
+    {% block site_header %}
+    <header class="header">
+        <div class="container">
+            <div class="header-content">
+                <div class="hero-title-block" aria-label="LiterNexus">
+                    <div class="hero-document-icon">
+                        <img class="hero-brand-logo hero-brand-logo-light" src="{{ url_for('static', filename='img/liternexus-logo-light.png') }}" alt="" width="430" height="88" aria-hidden="true" fetchpriority="high" decoding="async">
+                        <img class="hero-brand-logo hero-brand-logo-dark" src="{{ url_for('static', filename='img/liternexus-logo-dark.png') }}" alt="" width="430" height="88" aria-hidden="true" fetchpriority="high" decoding="async">
+                    </div>
+                    <div class="hero-copy">
+                        <h1 class="hero-semantic-title">LiterNexus</h1>
+                        <p>本地化、私人化的 AI 科研知识库：从文献检索、PDF 解析到知识问答、图谱分析与综述生成，持续沉淀你的研究资产。</p>
+                        <div class="hero-feature-tags" aria-label="核心特色">
+                            <span><i class="fas fa-lock" aria-hidden="true"></i> 私有本地运行</span>
+                            <span><i class="fas fa-layer-group" aria-hidden="true"></i> 持续积累知识库</span>
+                            <span><i class="fas fa-wand-magic-sparkles" aria-hidden="true"></i> AI 辅助研究</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="hero-signal-block" aria-label="系统能力与数据库来源">
+                    <div class="hero-capability-row">
+                        <span><i class="fas fa-magnifying-glass hero-multisource-icon" aria-hidden="true"></i><strong>多源文献检索</strong><small>跨数据库拉取与补全元数据</small></span>
+                        <span><i class="fas fa-folder-tree" aria-hidden="true"></i><strong>私人主题库</strong><small>按方向长期沉淀研究资产</small></span>
+                        <span><i class="fas fa-file-pdf" aria-hidden="true"></i><strong>PDF 全文解析</strong><small>本地Markdown与全文切块</small></span>
+                        <span><i class="fas fa-comments" aria-hidden="true"></i><strong>知识库问答</strong><small>基于本地文献的智能问答</small></span>
+                        <span><i class="fas fa-project-diagram" aria-hidden="true"></i><strong>知识图谱</strong><small>抽取关系、路径与证据</small></span>
+                        <span><i class="fas fa-pen-nib" aria-hidden="true"></i><strong>综述生成</strong><small>结构化报告与研究进展输出</small></span>
+                    </div>
+                </div>
+            </div>
+            <button type="button" class="theme-toggle" id="theme-toggle" aria-label="切换到夜览模式" aria-pressed="false">
+                <span class="theme-toggle-track" aria-hidden="true">
+                    <i class="fas fa-sun theme-toggle-sun"></i>
+                    <i class="fas fa-moon theme-toggle-moon"></i>
+                    <span class="theme-toggle-thumb"></span>
+                </span>
+                <span class="theme-toggle-text">日览模式</span>
+            </button>
+            <a class="user-guide-fab" href="{{ url_for('user_guide') }}" target="_blank" rel="noopener noreferrer" aria-label="打开用户手册">
+                <i class="fas fa-book-open" aria-hidden="true"></i>
+                <span>手册</span>
+            </a>
+            <a class="knowledge-qa-fab" href="{{ url_for('knowledge_qa') }}" target="_blank" rel="noopener noreferrer" aria-label="在新窗口打开知识问答" {% if request.endpoint == 'knowledge_qa' %}aria-current="page"{% endif %}>
+                <i class="fas fa-comments" aria-hidden="true"></i>
+                <span>问答</span>
+            </a>
+        </div>
+    </header>
+    {% endblock %}
+
+    <main class="main" id="main-content" tabindex="-1">
+        <div class="container">
+            {% block content %}{% endblock %}
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <p class="footer-copyright">
+                <span>&copy; LiterNexus. All rights reserved.</span>
+                <span class="footer-divider" aria-hidden="true"></span>
+                <button type="button" class="footer-author-link" data-author-list-open aria-haspopup="dialog" aria-controls="author-list-modal">
+                    <i class="fas fa-users" aria-hidden="true"></i>
+                    <span>开发者名单</span>
+                    <small>Author List</small>
+                    <i class="fas fa-arrow-right footer-author-arrow" aria-hidden="true"></i>
+                </button>
+            </p>
+        </div>
+    </footer>
+
+    <div class="author-list-modal" id="author-list-modal" hidden>
+        <div class="author-list-backdrop" data-author-list-close></div>
+        <section class="author-list-dialog" role="dialog" aria-modal="true" aria-labelledby="author-list-title" tabindex="-1">
+            <header class="author-list-header">
+                <div>
+                    <span>LiterNexus · Author List</span>
+                    <h2 id="author-list-title">开发者名单</h2>
+                    <p>项目设计、开发与维护人员</p>
+                </div>
+                <button type="button" class="author-list-close" data-author-list-close aria-label="关闭开发者名单">
+                    <i class="fas fa-times" aria-hidden="true"></i>
+                </button>
+            </header>
+
+            <div class="author-list-content">
+                <article class="author-profile author-profile-detailed">
+                    <div class="author-identity">
+                        <div class="author-avatar" aria-hidden="true">C</div>
+                        <div>
+                            <span class="author-role">产品架构</span>
+                            <h3>陈凯运</h3>
+                            <p>LiterNexus 的产品设计、系统架构、核心功能开发与版本维护。</p>
+                        </div>
+                    </div>
+                    <div class="author-biography">
+                        <div>
+                            <i class="fas fa-graduation-cap" aria-hidden="true"></i>
+                            <p>西北大学物理学学士；西安交通大学硕博连读（凝聚态物理硕士、材料科学与工程博士）。</p>
+                        </div>
+                        <div>
+                            <i class="fas fa-briefcase" aria-hidden="true"></i>
+                            <p>2021年入职西北有色金属研究院先进材料研究所。</p>
+                        </div>
+                        <div>
+                            <i class="fas fa-award" aria-hidden="true"></i>
+                            <p>中国科协青托、陕西省科技新星。</p>
+                        </div>
+                        <div>
+                            <i class="fas fa-book-open" aria-hidden="true"></i>
+                            <a class="author-scholar-link" href="https://scholar.google.com/citations?user=JsqoEYkAAAAJ&amp;hl=en" target="_blank" rel="noopener noreferrer" aria-label="在新窗口打开陈凯运的 Google Scholar 研究成果">
+                                <span>研究成果</span>
+                                <small>Google Scholar</small>
+                                <i class="fas fa-arrow-up-right-from-square" aria-hidden="true"></i>
+                            </a>
+                        </div>
+                    </div>
+                    <div class="author-contributions" aria-label="陈凯运的主要工作范围">
+                        <span>计算材料学</span>
+                        <span>人工智能</span>
+                        <span>材料相变</span>
+                        <span>磁性材料</span>
+                    </div>
+                </article>
+
+
+                <article class="author-profile author-profile-detailed">
+                    <div class="author-identity">
+                        <div class="author-avatar author-avatar-teal" aria-hidden="true">严</div>
+                        <div>
+                            <span class="author-role">程序开发</span>
+                            <h3>严海宁</h3>
+                            <p>人工智能算法、RAG知识库检索</p>
+                        </div>
+                    </div>
+                    <div class="author-biography">
+                        <div>
+                            <i class="fas fa-graduation-cap" aria-hidden="true"></i>
+                            <p>毕业于昆明理工大学计算机技术专业，获工学硕士学位。</p>
+                        </div>
+                        <div>
+                            <i class="fas fa-briefcase" aria-hidden="true"></i>
+                            <p>曾就职于上海脑虎科技有限公司，担任脑机接口算法工程师，从事神经科学与人工智能交叉方向工作。2023 年 7 月入职西安莱特信息工程有限公司，并担任软件开发工程师。</p>
+                        </div>
+                        <div>
+                            <i class="fas fa-flask" aria-hidden="true"></i>
+                            <p>目前主要从事自然语言处理、信息检索以及人工智能算法在稀有金属材料领域的应用研究。</p>
+                        </div>
+                    </div>
+                    <div class="author-contributions" aria-label="严海宁的研究方向">
+                        <span>自然语言处理</span>
+                        <span>信息检索</span>
+                        <span>人工智能算法</span>
+                        <span>稀有金属材料</span>
+                    </div>
+                </article>
+                <article class="author-profile author-profile-detailed">
+                    <div class="author-identity">
+                        <div class="author-avatar author-avatar-teal" aria-hidden="true">孙</div>
+                        <div>
+                            <span class="author-role">程序测试</span>
+                            <h3>孙锐</h3>
+                            <p>铌合金成分、结构与性能一体化设计及制备。</p>
+                        </div>
+                    </div>
+                    <div class="author-biography">
+                        <div>
+                            <i class="fas fa-graduation-cap" aria-hidden="true"></i>
+                            <p>北京理工大学动力机械及工程专业博士。</p>
+                        </div>
+                        <div>
+                            <i class="fas fa-briefcase" aria-hidden="true"></i>
+                            <p>2022年入职西北有色金属研究院难熔金属材料研究所。</p>
+                        </div>
+                        <div>
+                            <i class="fas fa-flask" aria-hidden="true"></i>
+                            <p>主要从事铌合金成分-结构-性能一体化设计与制备。</p>
+                        </div>
+                    </div>
+                    <div class="author-contributions" aria-label="孙锐的研究方向">
+                        <span>铌合金</span>
+                        <span>成分设计</span>
+                        <span>结构调控</span>
+                        <span>制备与性能</span>
+                    </div>
+                </article>
+
+                <div class="author-feedback" aria-label="开发者意见反馈">
+                    <span><i class="fas fa-envelope" aria-hidden="true"></i> 意见反馈</span>
+                    <a href="mailto:kaiyun.chen@c-nin.com">kaiyun.chen@c-nin.com</a>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    {% block scripts %}
+    <script src="{{ url_for('static', filename='js/main.js', v=static_version) }}"></script>
+    {% endblock %}
+    <script src="{{ url_for('static', filename='js/site_shell.js', v=static_version) }}"></script>
+</body>
+</html>

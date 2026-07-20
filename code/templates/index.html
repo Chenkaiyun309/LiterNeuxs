@@ -1,0 +1,851 @@
+{% extends "base.html" %}
+
+{% block body_class %}workspace-page{% endblock %}
+
+{% block content %}
+<div class="dashboard">
+    <!-- 左侧控制面板 -->
+    <div class="control-panel">
+        <!-- 功能标签容器 -->
+        <div class="accordion" id="main-accordion">
+            <div class="module-tabs" role="tablist" aria-label="功能模块">
+                <button type="button" class="module-tab active" data-module-tab="search" role="tab" aria-selected="true" aria-expanded="false" aria-controls="search-collapse">
+                    <span class="module-tab-label"><i class="fas fa-search"></i> 文献检索</span>
+                    <i class="fas fa-chevron-down module-tab-chevron" aria-hidden="true"></i>
+                </button>
+                <button type="button" class="module-tab" data-module-tab="graph" role="tab" aria-selected="false" aria-expanded="false" aria-controls="graph-collapse">
+                    <span class="module-tab-label"><i class="fas fa-project-diagram"></i> 知识图谱</span>
+                    <i class="fas fa-chevron-down module-tab-chevron" aria-hidden="true"></i>
+                </button>
+                <button type="button" class="module-tab" data-module-tab="trend" role="tab" aria-selected="false" aria-expanded="false" aria-controls="trend-collapse">
+                    <span class="module-tab-label"><i class="fas fa-chart-line"></i> 研究热点</span>
+                    <i class="fas fa-chevron-down module-tab-chevron" aria-hidden="true"></i>
+                </button>
+                <button type="button" class="module-tab" data-module-tab="report" role="tab" aria-selected="false" aria-expanded="false" aria-controls="report-collapse">
+                    <span class="module-tab-label"><i class="fas fa-file-alt"></i> 综述生成</span>
+                    <i class="fas fa-chevron-down module-tab-chevron" aria-hidden="true"></i>
+                </button>
+            </div>
+            <!-- 文献检索部分 -->
+            <div class="accordion-item">
+                <h2 class="accordion-header" id="search-heading">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#search-collapse" aria-expanded="false" aria-controls="search-collapse">
+                        <i class="fas fa-search"></i> 文献检索
+                    </button>
+                </h2>
+                <div id="search-collapse" class="accordion-collapse collapse" aria-labelledby="search-heading">
+                    <div class="accordion-body">
+                        <form id="search-form">
+                            <div class="search-config-shell">
+                                <div class="search-config-panel" id="search-config-panel">
+                                    <div class="search-config-grid">
+                                        <section class="search-config-section search-keyword-section">
+                                            <h3>关键词检索</h3>
+                                            <div class="query-list" id="query-list">
+                                                <!-- 查询词将通过JavaScript动态添加 -->
+                                            </div>
+                                            <div class="query-toolbar">
+                                                <label class="visually-hidden" for="query-operator">关键词组合方式</label>
+                                                <select id="query-operator" name="query_operator" autocomplete="off">
+                                                    <option value="与 (AND)">与 (AND)</option>
+                                                    <option value="或 (OR)">或 (OR)</option>
+                                                </select>
+                                                <button type="button" id="add-query" class="btn btn-secondary">
+                                                    <i class="fas fa-plus"></i> 添加关键词
+                                                </button>
+                                            </div>
+                                            <p class="help-text">"与"表示同时满足多个词，"或"表示满足任一关键词。</p>
+                                        </section>
+
+                                        <section class="search-config-section search-param-section">
+                                            <h3>参数设置</h3>
+                                            <div class="search-param-grid">
+                                                <div class="form-group search-date-field">
+                                                    <label>文献时间段</label>
+                                                    <div class="date-range">
+                                                        <label class="visually-hidden" for="start-date">开始日期</label>
+                                                        <input type="date" id="start-date" name="start_date" autocomplete="off">
+                                                        <span>至</span>
+                                                        <label class="visually-hidden" for="end-date">结束日期</label>
+                                                        <input type="date" id="end-date" name="end_date" autocomplete="off">
+                                                    </div>
+                                                </div>
+                                                <div class="form-group">
+                                                    <label for="limit-per-query">每个关键词条数</label>
+                                                    <input type="number" id="limit-per-query" name="limit_per_query" value="10" min="1" max="100">
+                                                </div>
+                                                <div class="form-group">
+                                                    <label for="sleep-each-req">请求间隔(秒)</label>
+                                                    <input type="number" id="sleep-each-req" name="sleep_each_req" value="1.0" step="0.1" min="0">
+                                                </div>
+                                            </div>
+                                        </section>
+
+                                        <section class="search-config-section search-source-section">
+                                            <h3>数据库选择</h3>
+                                            <div class="source-choice-grid">
+                                                <label class="source-choice" aria-label="Semantic Scholar">
+                                                    <input type="checkbox" name="selected-source" value="semantic_scholar">
+                                                    <img src="{{ url_for('static', filename='img/sources/semantic-scholar.svg') }}" alt="" width="180" height="56" class="source-logo">
+                                                </label>
+                                                <label class="source-choice" aria-label="OpenAlex">
+                                                    <input type="checkbox" name="selected-source" value="openalex">
+                                                    <img src="{{ url_for('static', filename='img/sources/openalex.svg') }}" alt="" width="210" height="56" class="source-logo">
+                                                </label>
+                                                <label class="source-choice" aria-label="Crossref">
+                                                    <input type="checkbox" name="selected-source" value="crossref">
+                                                    <img src="{{ url_for('static', filename='img/sources/crossref.svg') }}" alt="" width="180" height="56" class="source-logo">
+                                                </label>
+                                                <label class="source-choice" aria-label="arXiv">
+                                                    <input type="checkbox" name="selected-source" value="arxiv">
+                                                    <img src="{{ url_for('static', filename='img/sources/arxiv.svg') }}" alt="" width="180" height="56" class="source-logo">
+                                                </label>
+                                                <label class="source-choice" aria-label="PubMed">
+                                                    <input type="checkbox" name="selected-source" value="pubmed">
+                                                    <img src="{{ url_for('static', filename='img/sources/pubmed.svg') }}" alt="" width="180" height="56" class="source-logo">
+                                                </label>
+                                                <label class="source-choice" aria-label="Springer Nature">
+                                                    <input type="checkbox" name="selected-source" value="springer_nature">
+                                                    <img src="{{ url_for('static', filename='img/sources/springer-nature.svg') }}" alt="" width="240" height="72" class="source-logo">
+                                                </label>
+                                            </div>
+                                            <p class="help-text">选择本次要检索或补全的文献数据库。「开始检索」只拉取并合并各库结果；如需补全 DOI、期刊、摘要、引用数和开放 PDF 链接，请在检索完成后点击「多源补全」。</p>
+                                            <div class="database-credential-panel" id="database-credential-panel">
+                                                <div class="credential-alert" id="credential-alert">选择数据库后，这里会提示需要填写的访问密钥或联系邮箱。</div>
+
+                                                <div class="credential-field" data-credential-source="semantic_scholar">
+                                                    <label for="api-key">Semantic Scholar 访问密钥</label>
+                                                    <input type="password" id="api-key" name="semantic_scholar_api_key" placeholder="建议填写；留空会使用未认证请求…" autocomplete="new-password">
+                                                </div>
+
+                                                <div class="credential-field" data-credential-source="openalex">
+                                                    <label for="openalex-email">OpenAlex 联系邮箱</label>
+                                                    <input type="email" id="openalex-email" name="openalex_email" placeholder="可选；建议填写以使用 polite pool…" autocomplete="email">
+                                                </div>
+
+                                                <div class="credential-field" data-credential-source="crossref">
+                                                    <label for="crossref-email">Crossref 联系邮箱</label>
+                                                    <input type="email" id="crossref-email" name="crossref_email" placeholder="可选；建议填写以使用 polite pool…" autocomplete="email">
+                                                </div>
+
+                                                <div class="credential-field" data-credential-source="pubmed">
+                                                    <label for="pubmed-api-key">PubMed / NCBI 访问密钥</label>
+                                                    <input type="password" id="pubmed-api-key" name="pubmed_api_key" placeholder="可选；填写后请求额度更高…" autocomplete="new-password">
+                                                </div>
+
+                                                <div class="credential-field" data-credential-source="pubmed">
+                                                    <label for="pubmed-email">PubMed 联系邮箱</label>
+                                                    <input type="email" id="pubmed-email" name="pubmed_email" placeholder="建议填写；符合 NCBI E-utilities 使用建议…" autocomplete="email">
+                                                </div>
+
+                                                <div class="credential-field credential-note" data-credential-source="arxiv">
+                                                    arXiv 当前不需要访问密钥。
+                                                </div>
+
+                                                <div class="credential-field" data-credential-source="springer_nature">
+                                                    <label for="springer-nature-api-type">Springer Nature API</label>
+                                                    <select id="springer-nature-api-type" name="springer_nature_api_type" autocomplete="off">
+                                                        <option value="openaccess" selected>Open Access API</option>
+                                                        <option value="meta">Meta API</option>
+                                                    </select>
+                                                    <label for="springer-nature-api-key">Springer Nature 访问密钥</label>
+                                                    <input type="password" id="springer-nature-api-key" name="springer_nature_api_key" placeholder="必填；开放获取接口和元数据接口共用…" autocomplete="new-password">
+                                                </div>
+                                            </div>
+                                        </section>
+                                    </div>
+
+                                    <div class="progress-container" id="search-progress-container" style="display: none;">
+                                        <div class="progress-bar">
+                                            <div class="progress-fill" id="search-progress-fill"></div>
+                                        </div>
+                                        <div class="progress-text" id="search-progress-text">0%</div>
+                                    </div>
+                                    <button type="submit" class="btn btn-primary" id="search-btn">
+                                        <i class="fas fa-search"></i> 开始检索
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 综述生成部分 -->
+            <div class="accordion-item">
+                <h2 class="accordion-header" id="report-heading">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#report-collapse" aria-expanded="false" aria-controls="report-collapse">
+                        <i class="fas fa-file-alt"></i> 综述生成
+                    </button>
+                </h2>
+                <div id="report-collapse" class="accordion-collapse collapse" aria-labelledby="report-heading">
+                    <div class="accordion-body">
+                        <form id="report-form">
+                            <div class="search-config-shell module-config-shell module-config-report">
+                                <div class="search-config-panel" id="report-config-panel">
+                                    <div class="report-path-grid">
+                                <div class="report-source-panel report-path-field">
+                                    <div class="report-source-selector">
+                                        <label for="report-data-source">文献来源</label>
+                                        <select id="report-data-source" name="report_data_source" autocomplete="off">
+                                            <option value="csv">本次采集结果或自定义 CSV</option>
+                                            <option value="collection">文献主题库</option>
+                                            <option value="library">全部文献库</option>
+                                        </select>
+                                    </div>
+
+                                    <div class="report-source-detail" id="report-source-csv" data-report-source-panel="csv">
+                                        <label for="search-file-list">选择 CSV 数据集</label>
+                                        <div class="input-group">
+                                            <input type="hidden" id="input-csv" name="input_csv_path">
+                                            <select id="search-file-list" name="input_csv" class="path-select" autocomplete="off">
+                                                <option value="">请选择 CSV 文件</option>
+                                            </select>
+                                            <input type="file" id="csv-file-picker" name="csv_file" accept=".csv,text/csv" hidden>
+                                            <button type="button" id="browse-csv" class="btn btn-secondary">
+                                                <i class="fas fa-folder-open" aria-hidden="true"></i> 浏览
+                                            </button>
+                                        </div>
+                                        <p class="help-text">支持系统采集结果和自定义 CSV，可自动识别常见中英文列名。</p>
+                                    </div>
+
+                                    <div class="report-source-detail" id="report-source-collection" data-report-source-panel="collection" hidden>
+                                        <label for="report-collection-select">选择文献主题库</label>
+                                        <select id="report-collection-select" name="report_collection_id" autocomplete="off">
+                                            <option value="">暂无文献主题库</option>
+                                        </select>
+                                        <p class="help-text">直接使用主题库中的文献、摘要和已解析全文，不需要另存为 CSV。</p>
+                                    </div>
+
+                                    <div class="report-source-detail report-library-source" id="report-source-library" data-report-source-panel="library" hidden>
+                                        <strong><i class="fas fa-database" aria-hidden="true"></i> 使用全部文献库</strong>
+                                        <p class="help-text">报告将从已入库文献中选取内容，可通过“报告主题”限定写作主题。</p>
+                                    </div>
+                                </div>
+
+                                <div class="form-group report-path-field">
+                                    <label for="output-dir">输出位置</label>
+                                    <div class="input-group path-combobox">
+                                        <input type="text" id="output-dir" name="output_dir" placeholder="请选择输出文件夹…" autocomplete="off">
+                                        <div id="output-dir-options" class="path-options" hidden></div>
+                                        <button type="button" id="browse-output" class="btn btn-secondary">
+                                            <i class="fas fa-folder-open" aria-hidden="true"></i> 浏览
+                                        </button>
+                                    </div>
+                                </div>
+                                    </div>
+
+                                    <section class="report-source-summary" id="report-source-summary" data-state="idle" aria-live="polite">
+                                        <div class="report-source-summary-heading">
+                                            <div>
+                                                <strong><i class="fas fa-chart-pie" aria-hidden="true"></i> 数据与证据覆盖</strong>
+                                                <span id="report-source-summary-label">请选择文献来源</span>
+                                            </div>
+                                            <button type="button" class="report-summary-refresh" id="refresh-report-source-summary" title="重新检查数据" aria-label="重新检查数据">
+                                                <i class="fas fa-rotate" aria-hidden="true"></i>
+                                            </button>
+                                        </div>
+                                        <div class="report-source-metrics">
+                                            <div><span>文献总数</span><strong id="report-source-paper-count">--</strong></div>
+                                            <div><span>有摘要</span><strong id="report-source-abstract-count">--</strong></div>
+                                            <div><span>有全文</span><strong id="report-source-fulltext-count">--</strong></div>
+                                            <div><span>全文证据片段</span><strong id="report-source-chunk-count">--</strong></div>
+                                            <div><span>本模式可用</span><strong id="report-source-usable-count">--</strong></div>
+                                        </div>
+                                        <p id="report-source-summary-message">选择数据后将自动检查摘要和全文覆盖情况。</p>
+                                    </section>
+
+                                    <div class="report-config-shell" id="report-config-shell">
+                                <div class="report-config-sections" id="report-config-sections">
+                                    <div class="report-config-column" id="report-config-model-column">
+                                        <section class="report-config-section report-config-section-model">
+                                            <h3>
+                                                <span class="report-config-title">
+                                                    <i class="fas fa-microchip" aria-hidden="true"></i>
+                                                    <span><strong>模型相关参数</strong><small>连接与采样</small></span>
+                                                </span>
+                                            </h3>
+                                            <div class="report-section-grid">
+                                                <div class="form-group">
+                                                    <label for="llm-provider">接口类型</label>
+                                                    <select id="llm-provider" name="llm_provider" autocomplete="off">
+                                                        <option value="ollama">本地 Ollama 模型</option>
+                                                        <option value="openai_compatible">远程大模型接口</option>
+                                                    </select>
+                                                </div>
+                                                <div class="form-group">
+                                                    <label for="ollama-base-url">服务地址</label>
+                                                    <input type="text" id="ollama-base-url" name="llm_base_url" value="" placeholder="请填写本地或远程模型服务地址…" autocomplete="off" spellcheck="false">
+                                                </div>
+                                                <div class="form-group">
+                                                    <label for="llm-api-key">访问密钥</label>
+                                                    <div class="password-field">
+                                                        <input type="password" id="llm-api-key" name="llm_api_key" placeholder="使用远程大模型接口时需要填写…" autocomplete="off" spellcheck="false">
+                                                        <button type="button" class="password-toggle" id="toggle-llm-api-key" aria-label="显示访问密钥" title="显示访问密钥">
+                                                            <i class="fas fa-eye" aria-hidden="true"></i>
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                                <div class="form-group report-model-field">
+                                                    <label for="model">模型名称</label>
+                                                    <input type="text" id="model" name="model" list="model-options" value="" placeholder="请填写模型名称…" autocomplete="off" spellcheck="false">
+                                                    <datalist id="model-options">
+                                                        <option value="DeepSeek-V3.2-Thinking"></option>
+                                                        <option value="qwen3:8b"></option>
+                                                        <option value="gemma3:4b"></option>
+                                                        <option value="qwen2.5:7b"></option>
+                                                        <option value="llama3.1:8b"></option>
+                                                    </datalist>
+                                                </div>
+                                                <div class="report-grid-divider"><span>生成控制</span></div>
+                                                <div class="form-group">
+                                                    <label for="temperature">随机程度</label>
+                                                    <input type="number" id="temperature" name="temperature" value="0.7" step="0.1" min="0" max="1">
+                                                </div>
+                                                <div class="form-group">
+                                                    <label for="top-p">候选范围</label>
+                                                    <input type="number" id="top-p" name="top_p" value="0.9" step="0.1" min="0" max="1">
+                                                </div>
+                                                <div class="form-group">
+                                                    <label for="num-predict">最大输出长度</label>
+                                                    <input type="number" id="num-predict" name="num_predict" value="8000" min="1000">
+                                                </div>
+                                                <div class="form-group">
+                                                    <label for="max-retry">重试次数</label>
+                                                    <input type="number" id="max-retry" name="max_retry" value="3" min="0">
+                                                </div>
+                                            </div>
+                                        </section>
+                                    </div>
+
+                                    <div class="report-config-column" id="report-config-content-column">
+                                        <section class="report-config-section report-config-section-content">
+                                            <h3>
+                                                <span class="report-config-title">
+                                                    <i class="fas fa-file-alt" aria-hidden="true"></i>
+                                                    <span><strong>报告相关参数</strong><small>内容与证据</small></span>
+                                                </span>
+                                            </h3>
+                                            <div class="report-section-grid">
+                                                <div class="form-group">
+                                                    <label for="max-papers">最多使用文献数</label>
+                                                    <input type="number" id="max-papers" name="max_papers_for_llm" value="10" min="1">
+                                                </div>
+                                                <div class="form-group">
+                                                    <label for="report-style">报告类型</label>
+                                                    <select id="report-style" name="report_style" autocomplete="off">
+                                                        <option value="科研日报">科研日报</option>
+                                                        <option value="主题综述">主题综述</option>
+                                                        <option value="研究进展">研究进展</option>
+                                                        <option value="方法对比">方法对比</option>
+                                                        <option value="材料体系对比">材料体系对比</option>
+                                                        <option value="综述摘要">综述摘要</option>
+                                                        <option value="技术路线图">技术路线图</option>
+                                                        <option value="专利机会">专利机会</option>
+                                                        <option value="研究建议">研究建议</option>
+                                                    </select>
+                                                </div>
+                                                <div class="report-grid-divider"><span>证据与篇幅</span></div>
+                                                <div class="form-group">
+                                                    <label for="report-input-mode">证据范围</label>
+                                                    <select id="report-input-mode" name="report_input_mode" autocomplete="off">
+                                                        <option value="abstract_only">仅摘要</option>
+                                                        <option value="fulltext_only">仅使用已解析全文</option>
+                                                        <option value="abstract_plus_fulltext">摘要和已解析全文</option>
+                                                    </select>
+                                                </div>
+                                                <div class="form-group">
+                                                    <label for="min-chars">最少正文字数</label>
+                                                    <input type="number" id="min-chars" name="min_research_content_chars" value="500" min="0">
+                                                </div>
+                                                <div class="form-group report-topic-field">
+                                                    <label for="topic-override">报告主题</label>
+                                                    <input type="text" id="topic-override" name="topic_override" placeholder="可选，例如：钛合金疲劳行为…" autocomplete="off">
+                                                </div>
+                                                <div class="form-group checkbox-group report-checks">
+                                                    <label>
+                                                        <input type="checkbox" id="keep-empty-abstract" name="keep_empty_abstract"> 保留空摘要文献
+                                                    </label>
+                                                    <label>
+                                                        <input type="checkbox" id="save-debug-files" name="save_debug_files"> 保留调试文件
+                                                    </label>
+                                                </div>
+                                            </div>
+                                        </section>
+                                    </div>
+                                </div>
+                                    </div>
+
+                                    <div class="report-config-footer">
+                                        <span class="report-config-status" id="report-config-status" aria-live="polite"></span>
+                                        <button type="button" class="btn btn-secondary" id="save-report-config-btn">
+                                            <i class="fas fa-floppy-disk" aria-hidden="true"></i> 保存综述参数
+                                        </button>
+                                        <button type="submit" class="btn btn-primary" id="generate-btn">
+                                            <i class="fas fa-file-alt" aria-hidden="true"></i> 生成综述
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 知识图谱部分 -->
+            <div class="accordion-item">
+                <h2 class="accordion-header" id="graph-heading">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#graph-collapse" aria-expanded="false" aria-controls="graph-collapse">
+                        <i class="fas fa-project-diagram"></i> 知识图谱
+                    </button>
+                </h2>
+                <div id="graph-collapse" class="accordion-collapse collapse" aria-labelledby="graph-heading">
+                    <div class="accordion-body">
+                        <div class="search-config-shell module-config-shell module-config-graph">
+                            <div class="search-config-panel" id="graph-config-panel">
+                                <div class="graph-control-grid">
+                            <section class="graph-control-section">
+                                <h3>图谱数据集</h3>
+                                <div class="graph-control-row">
+                                    <div class="form-group">
+                                        <label for="graph-data-source-select">图谱数据源</label>
+                                        <select id="graph-data-source-select" name="graph_data_source" autocomplete="off">
+                                            <option value="csv" selected>当前 CSV 数据集</option>
+                                            <option value="collection">文献主题库</option>
+                                            <option value="library">全库文献库</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="graph-csv-select">当前数据集</label>
+                                        <select id="graph-csv-select" name="graph_csv" autocomplete="off"></select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="graph-mode-select">构图模式</label>
+                                        <select id="graph-mode-select" name="graph_mode" autocomplete="off">
+                                            <option value="hybrid" selected>混合增强（推荐）</option>
+                                            <option value="rule">规则抽取</option>
+                                            <option value="llm">大模型优先</option>
+                                        </select>
+                                    </div>
+                                    <button type="button" class="btn btn-primary" id="generate-graph-btn">
+                                        <i class="fas fa-circle-nodes"></i> 生成图谱
+                                    </button>
+                                </div>
+                                <div class="graph-source-config">
+                                    <div class="form-group">
+                                        <label for="graph-collection-select">文献主题库</label>
+                                        <select id="graph-collection-select" name="graph_collection_id" autocomplete="off"></select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="graph-input-source-select">文本来源</label>
+                                        <select id="graph-input-source-select" name="graph_input_source" autocomplete="off">
+                                            <option value="abstract" selected>摘要</option>
+                                            <option value="chunks">全文片段</option>
+                                            <option value="abstract_chunks">摘要和全文片段</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="graph-max-chunks">每篇全文片段数</label>
+                                        <input type="number" id="graph-max-chunks" name="graph_max_chunks" value="20" min="1" max="20" step="1">
+                                    </div>
+                                </div>
+                                <div class="graph-llm-config">
+                                    <div class="form-group">
+                                        <label for="graph-llm-provider">图谱接口类型</label>
+                                        <select id="graph-llm-provider" name="graph_llm_provider" autocomplete="off">
+                                            <option value="ollama">Ollama</option>
+                                            <option value="openai_compatible" selected>远程大模型接口</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="graph-llm-base-url">图谱模型服务地址</label>
+                                        <input type="url" id="graph-llm-base-url" name="graph_llm_base_url" value="" placeholder="请填写图谱模型服务地址…" autocomplete="url" spellcheck="false">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="graph-llm-api-key">图谱模型访问密钥</label>
+                                        <div class="password-field">
+                                            <input type="password" id="graph-llm-api-key" name="graph_llm_api_key" placeholder="仅图谱增强使用…" autocomplete="new-password">
+                                            <button type="button" class="password-toggle" id="toggle-graph-llm-api-key" aria-label="显示图谱模型访问密钥" title="显示图谱模型访问密钥">
+                                                <i class="fas fa-eye"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="graph-llm-model">图谱模型</label>
+                                        <input type="text" id="graph-llm-model" name="graph_llm_model" list="model-options" value="" placeholder="请填写图谱模型名称…" autocomplete="off" spellcheck="false">
+                                    </div>
+                                </div>
+                                <div class="graph-config-footer">
+                                    <p class="help-text">构建“材料-工艺-组织-性能”有向加权图谱。图谱增强使用本区独立模型配置，不读取“综述生成”模块配置；无可用配置时自动回退为规则抽取。</p>
+                                    <span class="graph-config-status" id="graph-config-status" aria-live="polite"></span>
+                                    <button type="button" class="btn btn-secondary" id="save-graph-config-btn">
+                                        <i class="fas fa-floppy-disk"></i> 保存图谱配置
+                                    </button>
+                                </div>
+                            </section>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 研究热点部分 -->
+            <div class="accordion-item">
+                <h2 class="accordion-header" id="trend-heading">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#trend-collapse" aria-expanded="false" aria-controls="trend-collapse">
+                        <i class="fas fa-chart-line"></i> 研究热点洞察
+                    </button>
+                </h2>
+                <div id="trend-collapse" class="accordion-collapse collapse" aria-labelledby="trend-heading">
+                    <div class="accordion-body">
+                        <div class="search-config-shell module-config-shell module-config-trend">
+                            <div class="search-config-panel" id="trend-config-panel">
+                                <div class="trend-control-grid trend-control-grid-single">
+                            <section class="trend-control-section">
+                                <h3>热点分析主题</h3>
+                                <div class="trend-filter-grid">
+                                    <div class="form-group">
+                                        <label for="trend-window-select">检索时间</label>
+                                        <select id="trend-window-select" name="trend_window" autocomplete="off">
+                                            <option value="7">近 7 天</option>
+                                            <option value="30" selected>近 30 天</option>
+                                            <option value="90">近 90 天</option>
+                                            <option value="all">全部历史</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="trend-source-select">数据来源</label>
+                                        <select id="trend-source-select" name="trend_source" autocomplete="off">
+                                            <option value="current_csv">当前检索 CSV</option>
+                                            <option value="csv_all" selected>全部历史 CSV</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="trend-publication-window-select">论文发表时间</label>
+                                        <select id="trend-publication-window-select" name="trend_publication_window" autocomplete="off">
+                                            <option value="all" selected>全部年份</option>
+                                            <option value="3">近 3 年</option>
+                                            <option value="5">近 5 年</option>
+                                            <option value="10">近 10 年</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="trend-topic-list" id="trend-topic-list">
+                                    <div class="trend-topic-row">
+                                        <div class="form-group">
+                                            <label for="trend-topic-select">主题 1</label>
+                                            <select id="trend-topic-select" name="trend_topic" class="trend-analysis-topic" autocomplete="off"></select>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="trend-action-row">
+                                    <button type="button" class="btn btn-secondary" id="add-trend-topic-btn">
+                                        <i class="fas fa-plus"></i> 添加对比主题
+                                    </button>
+                                    <button type="button" class="btn btn-primary" id="load-trend-btn">
+                                        <i class="fas fa-chart-area"></i> 分析热点
+                                    </button>
+                                </div>
+                                <p class="help-text">选择 1 个主题时进行单主题热点分析；选择 2 个主题时自动进行主题对比。仅分析检索 CSV；检索时间按 CSV 获取日期筛选，论文发表时间按 CSV 中的 publicationDate 或 year 筛选。</p>
+                            </section>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 右侧预览面板 -->
+    <div class="preview-panel is-collapsed">
+        <div class="preview-tabs" role="tablist" aria-label="数据与结果预览">
+            <button type="button" class="tab-btn active" data-tab="literature" role="tab" aria-selected="true" aria-expanded="false" aria-controls="literature-preview">
+                <span class="preview-tab-label"><i class="fas fa-magnifying-glass" aria-hidden="true"></i> 检索预览</span><i class="fas fa-chevron-down preview-tab-chevron" aria-hidden="true"></i>
+            </button>
+            <button type="button" class="tab-btn" data-tab="library" role="tab" aria-selected="false" aria-expanded="false" aria-controls="library-preview">
+                <span class="preview-tab-label"><i class="fas fa-database" aria-hidden="true"></i> 文献数据库</span><i class="fas fa-chevron-down preview-tab-chevron" aria-hidden="true"></i>
+            </button>
+            <button type="button" class="tab-btn" data-tab="collections" role="tab" aria-selected="false" aria-expanded="false" aria-controls="collections-preview">
+                <span class="preview-tab-label"><i class="fas fa-layer-group" aria-hidden="true"></i> 文献主题库</span><i class="fas fa-chevron-down preview-tab-chevron" aria-hidden="true"></i>
+            </button>
+            <button type="button" class="tab-btn" data-tab="report" role="tab" aria-selected="false" aria-expanded="false" aria-controls="report-preview">
+                <span class="preview-tab-label"><i class="fas fa-file-lines" aria-hidden="true"></i> 综述预览</span><i class="fas fa-chevron-down preview-tab-chevron" aria-hidden="true"></i>
+            </button>
+            <button type="button" class="tab-btn" data-tab="graph" role="tab" aria-selected="false" aria-expanded="false" aria-controls="graph-preview">
+                <span class="preview-tab-label"><i class="fas fa-project-diagram" aria-hidden="true"></i> 知识图谱</span><i class="fas fa-chevron-down preview-tab-chevron" aria-hidden="true"></i>
+            </button>
+            <button type="button" class="tab-btn" data-tab="trend" role="tab" aria-selected="false" aria-expanded="false" aria-controls="trend-preview">
+                <span class="preview-tab-label"><i class="fas fa-chart-line" aria-hidden="true"></i> 热点预览</span><i class="fas fa-chevron-down preview-tab-chevron" aria-hidden="true"></i>
+            </button>
+            <button type="button" class="tab-btn" data-tab="log" role="tab" aria-selected="false" aria-expanded="false" aria-controls="log-preview">
+                <span class="preview-tab-label"><i class="fas fa-terminal" aria-hidden="true"></i> 运行日志</span><i class="fas fa-chevron-down preview-tab-chevron" aria-hidden="true"></i>
+            </button>
+        </div>
+
+        <div class="preview-content">
+            <!-- 文献预览 -->
+            <div id="literature-preview" class="preview-tab active">
+                <div class="preview-header literature-preview-header">
+                    <p class="file-info" id="literature-info" hidden>请先执行文献检索或选择一个CSV文件。</p>
+                    <div class="preview-dataset-control">
+                        <label for="preview-csv-select">CSV 文件</label>
+                        <div class="preview-file-row">
+                            <select id="preview-csv-select" name="preview_csv" autocomplete="off"></select>
+                            <button class="btn btn-primary" id="enrich-preview-csv">
+                                <i class="fas fa-wand-magic-sparkles"></i> 多源补全
+                            </button>
+                            <button class="btn btn-secondary" id="open-preview-csv">
+                                <i class="fas fa-folder-open"></i> 打开文件
+                            </button>
+                        </div>
+                    </div>
+                </div>
+	                <div class="preview-body" id="literature-content">
+	                    <p>请先执行文献检索或选择一个CSV文件。</p>
+	                </div>
+                    <div class="pagination-bar" id="literature-pagination" style="display: none;"></div>
+	            </div>
+
+            <!-- 文献数据库 -->
+            <div id="library-preview" class="preview-tab">
+                <div class="preview-header library-preview-header">
+                    <div class="library-global-summary" id="library-global-summary"></div>
+                    <div class="library-toolbar">
+                        <div class="library-search-grid">
+                            <div class="library-search">
+                                <label for="library-search-input">
+                                    <i class="fas fa-search"></i> 文献检索
+                                </label>
+                                <div class="library-search-row">
+                                    <input type="search" id="library-search-input" name="library_query" placeholder="标题、作者、摘要、期刊或 DOI…" autocomplete="off">
+                                    <div class="library-search-actions">
+                                        <button class="btn btn-primary" id="library-search-btn">
+                                            <i class="fas fa-search"></i> 搜索
+                                        </button>
+                                        <input type="file" id="library-metadata-file-picker" name="library_metadata_file" accept=".csv,.json,.jsonl,text/csv,application/json,application/x-ndjson" hidden>
+                                        <button type="button" class="btn btn-secondary" id="library-import-metadata-btn">
+                                            <i class="fas fa-file-import" aria-hidden="true"></i> 导入文献
+                                        </button>
+                                        <button type="button" class="btn btn-primary" id="library-create-paper-btn">
+                                            <i class="fas fa-plus" aria-hidden="true"></i> 新建单篇
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <p class="file-info" id="library-info">读取持续积累的 SQLite 文献数据库。</p>
+                    </div>
+                </div>
+                <div class="preview-body library-body" id="library-content">
+                    <p>切换到文献数据库后自动加载已累积文献。</p>
+                </div>
+                <div class="pagination-bar" id="library-pagination" style="display: none;"></div>
+            </div>
+
+            <!-- 文献主题库 -->
+            <div id="collections-preview" class="preview-tab">
+                <div class="preview-header collections-preview-header">
+                    <div class="collections-create-panel">
+                        <div class="collections-create-field collections-name-field">
+                            <label for="collection-name">新建文献主题库</label>
+                            <input type="text" id="collection-name" name="collection_name" placeholder="例如 Ti alloy / Additive manufacturing…" autocomplete="off">
+                        </div>
+                        <div class="collections-create-field collections-type-field">
+                            <label for="collection-type">类型</label>
+                            <select id="collection-type" name="collection_type" aria-label="文献主题库类型" autocomplete="off">
+                                <option value="material">材料</option>
+                                <option value="method">方法</option>
+                                <option value="project">项目</option>
+                                <option value="custom">其它</option>
+                            </select>
+                        </div>
+                        <div class="collections-create-field collections-keyword-field">
+                            <label for="collection-include-keywords">包含关键词</label>
+                            <input type="text" id="collection-include-keywords" name="collection_include_keywords" placeholder="Ti alloy, titanium alloy, Ti-6Al-4V…" autocomplete="off">
+                        </div>
+                        <div class="collections-create-field collections-keyword-field">
+                            <label for="collection-exclude-keywords">排除关键词</label>
+                            <input type="text" id="collection-exclude-keywords" name="collection_exclude_keywords" placeholder="可选，用逗号分隔…" autocomplete="off">
+                        </div>
+                        <button type="button" class="btn btn-primary collections-create-submit" id="create-collection-btn">
+                            <i class="fas fa-plus"></i> 创建
+                        </button>
+                    </div>
+                    <p class="file-info" id="collections-info">管理材料、方法或项目文献主题库。</p>
+                </div>
+                <div class="preview-body collections-body">
+                    <div class="collections-layout">
+                        <div class="collections-list-panel" id="collections-list"></div>
+                        <div class="collections-detail-panel" id="collections-detail">
+                            <p>选择或创建一个文献主题库。</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 综述预览 -->
+            <div id="report-preview" class="preview-tab">
+                <div class="preview-header report-preview-header">
+                    <div class="preview-dataset-control report-file-control">
+                        <label for="report-file-list">MD 文件</label>
+                        <div class="report-file-row">
+                            <select id="report-file-list" name="report_file" autocomplete="off"></select>
+                            <input type="file" id="report-file-picker" name="report_file_upload" accept=".md,.markdown,.json,.txt,.pdf,text/markdown,text/plain,application/json,application/pdf" hidden>
+                            <button class="btn btn-secondary" id="open-report-location">
+                                <i class="fas fa-folder-open"></i> 浏览
+                            </button>
+                        </div>
+                        <p class="file-info" id="report-info" hidden>尚未生成综述文件，选择后可预览。</p>
+                    </div>
+                </div>
+                <div class="preview-body" id="report-content">
+                    <p>暂无综述文档，请先生成`.md`或`.pdf`报告。</p>
+                </div>
+            </div>
+
+            <!-- 知识图谱 -->
+            <div id="graph-preview" class="preview-tab">
+                <div class="preview-header graph-preview-header preview-status-header">
+                    <p class="file-info" id="graph-info" hidden>选择 CSV 数据集后可生成图谱。</p>
+                    <div class="progress-container graph-progress-container" id="graph-progress-container" style="display: none;">
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="graph-progress-fill"></div>
+                        </div>
+                        <div class="progress-text" id="graph-progress-text">0%</div>
+                    </div>
+                </div>
+                <div class="preview-body graph-body" id="graph-content">
+                    <p>暂无知识图谱，请先选择数据集并生成。</p>
+                </div>
+            </div>
+
+            <!-- 热点预览 -->
+            <div id="trend-preview" class="preview-tab">
+                <div class="preview-header trend-preview-header preview-status-header">
+                    <p class="file-info" id="trend-info" hidden>选择主题后可查看热点变化。</p>
+                </div>
+                <div class="preview-body trend-body" id="trend-content">
+                    <p>暂无热点数据，请先选择一个主题。</p>
+                </div>
+            </div>
+
+            <!-- 运行日志 -->
+            <div id="log-preview" class="preview-tab">
+                <div class="preview-header">
+                    <div class="log-controls">
+                        <span class="status-indicator" id="status-indicator">
+                            <span class="writing-loader" aria-hidden="true">
+                                <span class="writing-paper">
+                                    <span></span>
+                                    <span></span>
+                                    <span></span>
+                                </span>
+                                <span class="writing-pencil"></span>
+                            </span>
+                        </span>
+                        <button class="btn btn-secondary" id="clear-log">
+                            <i class="fas fa-trash"></i> 清空日志
+                        </button>
+                    </div>
+                </div>
+                <div class="preview-body log-body" id="log-content">
+                    <div class="log-empty-state">
+                        <span class="writing-loader writing-loader-large" aria-hidden="true">
+                            <span class="writing-paper">
+                                <span></span>
+                                <span></span>
+                                <span></span>
+                            </span>
+                            <span class="writing-pencil"></span>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="library-metadata-modal" id="library-metadata-modal" aria-hidden="true">
+    <div class="library-metadata-modal-backdrop" data-library-metadata-close onclick="closeLibraryMetadataModal()"></div>
+    <section class="library-metadata-modal-panel" role="dialog" aria-modal="true" aria-labelledby="library-metadata-modal-title" tabindex="-1">
+        <header class="library-metadata-modal-header">
+            <div>
+                <span>Manual Metadata</span>
+                <h3 id="library-metadata-modal-title">新建单篇文献</h3>
+            </div>
+            <button type="button" class="library-metadata-modal-close" data-library-metadata-close onclick="closeLibraryMetadataModal()" aria-label="关闭">
+                <i class="fas fa-times" aria-hidden="true"></i>
+            </button>
+        </header>
+        <form id="library-metadata-form" class="library-metadata-form">
+            <div class="library-metadata-form-fields">
+            <label class="library-metadata-field library-metadata-field-wide">
+                <span>题目 <b>*</b></span>
+                <input type="text" name="title" required autocomplete="off">
+            </label>
+            <label class="library-metadata-field library-metadata-field-wide">
+                <span>作者</span>
+                <input type="text" name="authors" placeholder="多位作者用分号分隔" autocomplete="off">
+            </label>
+            <label class="library-metadata-field">
+                <span>DOI</span>
+                <input type="text" name="doi" placeholder="10.xxxx/xxxxx" autocomplete="off">
+            </label>
+            <label class="library-metadata-field">
+                <span>期刊</span>
+                <input type="text" name="venue" autocomplete="off">
+            </label>
+            <label class="library-metadata-field">
+                <span>发表日期</span>
+                <input type="date" name="publicationDate" autocomplete="off">
+            </label>
+            <label class="library-metadata-field">
+                <span>年份</span>
+                <input type="number" name="year" min="1000" max="9999" inputmode="numeric" autocomplete="off">
+            </label>
+            <label class="library-metadata-field">
+                <span>卷</span>
+                <input type="text" name="volume" autocomplete="off">
+            </label>
+            <label class="library-metadata-field">
+                <span>期</span>
+                <input type="text" name="issue" autocomplete="off">
+            </label>
+            <label class="library-metadata-field">
+                <span>引用数</span>
+                <input type="number" name="citationCount" min="0" inputmode="numeric" autocomplete="off">
+            </label>
+            <label class="library-metadata-field">
+                <span>作者单位</span>
+                <input type="text" name="institutions" autocomplete="off">
+            </label>
+            <label class="library-metadata-field library-metadata-field-wide">
+                <span>文献链接</span>
+                <input type="url" name="url" placeholder="https://…" autocomplete="off">
+            </label>
+            <label class="library-metadata-field library-metadata-field-wide">
+                <span>摘要</span>
+                <textarea name="abstract" rows="4"></textarea>
+            </label>
+            <label class="library-metadata-field library-metadata-field-wide library-metadata-pdf-field">
+                <span>PDF 文件 <small>可选</small></span>
+                <input type="file" name="pdf_file" accept=".pdf,application/pdf">
+            </label>
+            </div>
+            <footer class="library-metadata-modal-actions">
+                <button type="button" class="btn btn-secondary" data-library-metadata-close onclick="closeLibraryMetadataModal()">取消</button>
+                <button type="submit" class="btn btn-primary" id="library-metadata-submit">
+                    <i class="fas fa-database" aria-hidden="true"></i> 保存入库
+                </button>
+            </footer>
+        </form>
+    </section>
+</div>
+
+<!-- 初始化数据 -->
+<script>
+    window.INITIAL_DATA = {{ initial_data | tojson | safe }};
+</script>
+{% endblock %}

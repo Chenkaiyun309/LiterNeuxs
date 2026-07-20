@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 72" role="img" aria-labelledby="title">
+  <title id="title">Springer Nature</title>
+  <rect width="240" height="72" rx="10" fill="#ffffff"/>
+  <text x="18" y="32"
+        font-family="Arial Black, Arial, Helvetica, sans-serif"
+        font-size="21"
+        font-weight="900"
+        letter-spacing="0"
+        fill="#111b54">SPRINGER</text>
+  <text x="18" y="56"
+        font-family="Arial Black, Arial, Helvetica, sans-serif"
+        font-size="21"
+        font-weight="900"
+        letter-spacing="0"
+        fill="#e31b23">NATURE</text>
+</svg>

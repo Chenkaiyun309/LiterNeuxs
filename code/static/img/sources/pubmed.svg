@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 56" role="img" aria-labelledby="title">
+  <title id="title">PubMed</title>
+  <rect width="180" height="56" rx="10" fill="#ffffff"/>
+  <path d="M105 15c16 0 29 10 29 22s-13 22-29 22c-8 0-15-2-20-6 10-4 16-10 16-18s-6-14-16-18c5-2 12-2 20-2Z" fill="#3b82f6" opacity=".88" transform="translate(-5 -8)"/>
+  <text x="22" y="36" font-family="IBM Plex Sans, Arial, sans-serif" font-size="27" font-weight="900" fill="#1f77b4">Pub</text>
+  <text x="73" y="36" font-family="IBM Plex Sans, Arial, sans-serif" font-size="27" font-weight="900" fill="#2f6fee">Med</text>
+</svg>

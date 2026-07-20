@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+
+{% block title %}用户手册 · LiterNexus{% endblock %}
+{% block body_class %}user-guide-page{% endblock %}
+
+{% block content %}
+<section class="guide-page">
+    <aside class="guide-sidebar" aria-label="用户手册导航">
+        <a class="guide-back-link" href="{{ url_for('index') }}">
+            <i class="fas fa-arrow-left" aria-hidden="true"></i>
+            返回系统
+        </a>
+        <div class="guide-sidebar-card">
+            <span class="guide-kicker">Documentation</span>
+            <h2>用户手册</h2>
+            {% if updated_at %}
+            <p>更新：{{ updated_at }}</p>
+            {% endif %}
+            <p>本页面由 <code>docs/USER_GUIDE.md</code> 自动渲染。</p>
+        </div>
+    </aside>
+    <article class="guide-document markdown-preview">
+        {{ guide_html }}
+    </article>
+</section>
+{% endblock %}

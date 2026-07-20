@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 56" role="img" aria-labelledby="title">
+  <title id="title">Crossref</title>
+  <rect width="180" height="56" rx="10" fill="#ffffff"/>
+  <path d="M22 10 52 22 22 35Z" fill="#f6bf26"/>
+  <path d="M22 35 52 22 52 45Z" fill="#18a9d6"/>
+  <path d="M22 10v25L8 29V16Z" fill="#2f6fee"/>
+  <path d="M8 29 22 35v13L8 42Z" fill="#45d7be"/>
+  <text x="68" y="35" font-family="IBM Plex Sans, Arial, sans-serif" font-size="24" font-weight="900" fill="#4b5563">Crossref</text>
+</svg>

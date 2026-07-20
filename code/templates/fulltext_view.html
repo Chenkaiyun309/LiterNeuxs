@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="day">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Markdown 全文 - LiterNexus</title>
+    <script>
+        (function() {
+            var theme = localStorage.getItem('liternexus-theme') || localStorage.getItem('scholarflow-theme') || 'day';
+            document.documentElement.setAttribute('data-theme', theme === 'night' ? 'night' : 'day');
+        })();
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
+    <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css', v=static_version) }}">
+    <script>
+        window.MathJax = {
+            tex: {
+                inlineMath: [['\\(', '\\)'], ['$', '$']],
+                displayMath: [['\\[', '\\]'], ['$$', '$$']],
+                processEscapes: true,
+                macros: {
+                    bm: ['\\mathbf{' + '#1}', 1],
+                    boldsymbol: ['\\mathbf{' + '#1}', 1]
+                }
+            },
+            options: {
+                skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+            },
+            startup: {
+                typeset: false
+            }
+        };
+        window.LITERNEXUS_FULLTEXT_VIEW = {
+            identityKey: {{ identity_key|tojson }}
+        };
+    </script>
+    <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+</head>
+<body class="fulltext-page">
+    <a class="skip-link" href="#fulltext-page-main">跳到全文内容</a>
+    <div class="fulltext-page-root" id="fulltext-page-root">
+        <header class="fulltext-page-toolbar">
+            <div class="fulltext-page-title-block">
+                <span>Markdown Review</span>
+                <h1 id="fulltext-page-title">Markdown 全文</h1>
+                <div class="fulltext-page-meta" id="fulltext-page-meta"></div>
+            </div>
+            <div class="fulltext-page-actions">
+                <div class="fulltext-page-action-group">
+                    <button type="button" class="pdf-action-button" id="fulltext-page-edit-toggle">修改</button>
+                    <button type="button" class="pdf-action-button" id="fulltext-page-save" hidden>保存</button>
+                    <button type="button" class="pdf-action-button" id="fulltext-page-cancel" hidden>取消</button>
+                    <span class="paper-fulltext-mode-badge is-render" id="fulltext-page-mode-badge">渲染视图</span>
+                </div>
+                <div class="fulltext-page-action-group">
+                    <button type="button" class="pdf-action-button" id="fulltext-page-font-decrease" aria-label="缩小字体">A-</button>
+                    <button type="button" class="pdf-action-button" id="fulltext-page-font-reset" aria-label="重置字体">100%</button>
+                    <button type="button" class="pdf-action-button" id="fulltext-page-font-increase" aria-label="放大字体">A+</button>
+                </div>
+            </div>
+        </header>
+        <main class="fulltext-page-main" id="fulltext-page-main" tabindex="-1">
+            <div class="fulltext-page-status" id="fulltext-page-status" role="status" aria-live="polite" aria-atomic="true">正在读取 Markdown 全文…</div>
+            <article class="fulltext-page-body markdown-preview" id="fulltext-page-body"></article>
+        </main>
+    </div>
+    <script src="{{ url_for('static', filename='js/main.js', v=static_version) }}"></script>
+</body>
+</html>
